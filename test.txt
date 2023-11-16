@@ -1,0 +1,53 @@
+using UnityEngine;
+
+public class Test : MonoBehaviour
+{
+    public Transform mainCamera;
+
+    public Vector3 positionOffset;
+    public Vector3 rotationThreshold;
+    public Vector3 positionThreshold;
+
+    public float smoothFactor = 0.5f;
+
+    private Vector3 lastPosition;
+    private Quaternion lastRotation;
+
+    private void Start()
+    {
+        // Initialize last position and rotation
+        lastPosition = transform.position;
+        lastRotation = transform.rotation;
+    }
+
+    private void Update()
+    {
+        // Check if the rotation exceeds threshold
+        if (Mathf.Abs(mainCamera.eulerAngles.x - transform.eulerAngles.x) > rotationThreshold.x ||
+            Mathf.Abs(mainCamera.eulerAngles.y - transform.eulerAngles.y) > rotationThreshold.y ||
+            Mathf.Abs(mainCamera.eulerAngles.z - transform.eulerAngles.z) > rotationThreshold.z)
+        {
+            Quaternion targetRotation = Quaternion.Euler(mainCamera.eulerAngles.x, mainCamera.eulerAngles.y, mainCamera.eulerAngles.z);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, smoothFactor * Time.deltaTime);
+            lastRotation = transform.rotation; // Update last rotation
+        }
+        else
+        {
+            transform.rotation = lastRotation; // Keep last rotation
+        }
+
+        // Check if the position exceeds threshold
+        if (Mathf.Abs(mainCamera.position.x - transform.position.x) > positionThreshold.x ||
+            Mathf.Abs(mainCamera.position.y - transform.position.y) > positionThreshold.y ||
+            Mathf.Abs(mainCamera.position.z - transform.position.z) > positionThreshold.z)
+        {
+            Vector3 targetPosition = mainCamera.position + positionOffset;
+            transform.position = Vector3.Lerp(transform.position, targetPosition, smoothFactor * Time.deltaTime);
+            lastPosition = transform.position; // Update last position
+        }
+        else
+        {
+            transform.position = lastPosition; // Keep last position
+        }
+    }
+}
